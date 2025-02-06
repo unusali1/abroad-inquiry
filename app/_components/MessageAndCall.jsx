@@ -24,7 +24,6 @@ import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
 
-
 const MessageAndCall = () => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const textareaRef = useRef(null);
@@ -63,19 +62,31 @@ const MessageAndCall = () => {
     return new Date(date).toLocaleString("en-GB", options);
   }
 
+  const getLocalIP = async () => {
+    const peerConnection = new RTCPeerConnection();
+    peerConnection.createDataChannel("");
+    peerConnection
+      .createOffer()
+      .then((offer) => peerConnection.setLocalDescription(offer));
+
+    return new Promise((resolve) => {
+      peerConnection.onicecandidate = (event) => {
+        if (event && event.candidate) {
+          const localIP = event.candidate.address;
+          resolve(localIP);
+          peerConnection.close();
+        }
+      };
+    });
+  };
 
   useEffect(() => {
-    const fetchIp = async () => {
-        try {
-            const response = await axios.get("https://api64.ipify.org?format=json");
-            setUserIp(response.data.ip); // Set the IP in state
-        } catch (error) {
-            console.error("Error fetching IP:", error);
-        }
-    };
-    fetchIp();
-}, []);
-
+    getLocalIP()
+      .then((ip) => {
+        setUserIp(ip);
+      })
+      .catch((error) => console.error("Error fetching local IP:", error));
+  }, []);
 
   const handleSendMessage = (suggest) => {
     if (!message.trim() && !suggest) return;
@@ -94,13 +105,14 @@ const MessageAndCall = () => {
       userId: userIp,
       domain: "https://www.abroadinquiry.com/",
     };
+   
     axios
       .post(
         `https://abroad-inquiry-ai-new-api-607757000261.us-central1.run.app/chat`,
         data,
         {
           headers: {
-            "Content-Type": "multipart/form-data",  
+            "Content-Type": "multipart/form-data",
           },
         }
       )
@@ -178,12 +190,15 @@ const MessageAndCall = () => {
 
   useEffect(() => {
     if (lastBotMessage && lastBotMessage.isWrite) {
-      let i = 0;
-      setTypedText("");
+      setTypedText(""); // Ensure it's cleared first
       setIsTypingDone(false);
+
+      let i = 0;
+      const textToType = lastBotMessage.text; // Store it in a variable to avoid potential re-renders
+
       const type = () => {
-        if (i < lastBotMessage.text.length) {
-          setTypedText((prev) => prev + lastBotMessage.text.charAt(i));
+        if (i < textToType.length) {
+          setTypedText((prev) => prev + textToType.charAt(i));
           i++;
           setTimeout(type, 20);
         } else {
