@@ -94,10 +94,9 @@ const MessageAndCall = () => {
       userId: userIp,
       domain: "https://www.abroadinquiry.com/",
     };
-    console.log("data:",data);
     axios
       .post(
-        `https://abroad-ai-api-607757000261.us-central1.run.app/chat`,
+        `https://abroad-inquiry-ai-new-api-607757000261.us-central1.run.app/chat`,
         data,
         {
           headers: {
@@ -164,7 +163,7 @@ const MessageAndCall = () => {
     setChatHistory([
       {
         sender: "bot",
-        text: "👋 Hi! I’m CongentAI Chatbot. Nice to meet you. How may I help you today?",
+        text: `👋Hello! I’m Abroad Inquiry, here to help you navigate your educational opportunities abroad. How can I assist you today?`,
       },
     ]);
     localStorage.removeItem("chatHistory");
@@ -291,11 +290,11 @@ const MessageAndCall = () => {
                     }}
                   >
                     <div className="flex items-center space-x-2">
-                      <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                      <div className="w-10 h-10  rounded-full flex items-center justify-center">
                         <Image
                           src={chatIcon}
                           alt="Chatbot Logo"
-                          className="w-8 h-8 rounded-full"
+                          className="w-12 h-12 mt-2"
                           width={40}
                           height={40}
                         />
