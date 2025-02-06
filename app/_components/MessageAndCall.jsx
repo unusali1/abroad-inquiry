@@ -23,7 +23,7 @@ import "regenerator-runtime/runtime";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
-import publicIp from "public-ip";
+
 
 const MessageAndCall = () => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
