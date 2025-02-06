@@ -23,12 +23,14 @@ import "regenerator-runtime/runtime";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
+import publicIp from "public-ip";
 
 const MessageAndCall = () => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const textareaRef = useRef(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [userIp, setUserIp] = useState("");
   const [chatHistory, setChatHistory] = useState([
     {
       sender: "bot",
@@ -61,6 +63,20 @@ const MessageAndCall = () => {
     return new Date(date).toLocaleString("en-GB", options);
   }
 
+
+  useEffect(() => {
+    const fetchIp = async () => {
+        try {
+            const response = await axios.get("https://api64.ipify.org?format=json");
+            setUserIp(response.data.ip); // Set the IP in state
+        } catch (error) {
+            console.error("Error fetching IP:", error);
+        }
+    };
+    fetchIp();
+}, []);
+
+
   const handleSendMessage = (suggest) => {
     if (!message.trim() && !suggest) return;
     const date = new Date();
@@ -75,9 +91,10 @@ const MessageAndCall = () => {
 
     const data = {
       query: message || suggest,
-      userId: "unus123",
-      domain: "http://localhost:3000/",
+      userId: userIp,
+      domain: "https://www.abroadinquiry.com/",
     };
+    console.log("data:",data);
     axios
       .post(
         `https://abroad-ai-api-607757000261.us-central1.run.app/chat`,
@@ -100,6 +117,7 @@ const MessageAndCall = () => {
         };
         setChatHistory((prev) => [...prev, botResponse]);
         setMessage("");
+        setRecordingTime(0);
       })
       .catch((error) => {
         const errorResponse = {
@@ -112,6 +130,7 @@ const MessageAndCall = () => {
       })
       .finally(() => {
         setLoading(false);
+        resetTranscript();
       });
   };
 
@@ -167,7 +186,7 @@ const MessageAndCall = () => {
         if (i < lastBotMessage.text.length) {
           setTypedText((prev) => prev + lastBotMessage.text.charAt(i));
           i++;
-          setTimeout(type, 5);
+          setTimeout(type, 20);
         } else {
           setChatHistory((prevChatHistory) =>
             prevChatHistory.map((msg) =>
