@@ -188,35 +188,39 @@ const MessageAndCall = () => {
     .filter((msg) => msg.sender === "bot")
     .pop(); // Get last bot message
 
-  useEffect(() => {
-    if (lastBotMessage && lastBotMessage.isWrite) {
-      setTypedText(""); // Ensure it's cleared first
-      setIsTypingDone(false);
-
-      let i = 0;
-      const textToType = lastBotMessage.text; // Store it in a variable to avoid potential re-renders
-
-      const type = () => {
-        if (i < textToType.length) {
-          setTypedText((prev) => prev + textToType.charAt(i));
-          i++;
-          setTimeout(type, 20);
-        } else {
-          setChatHistory((prevChatHistory) =>
-            prevChatHistory.map((msg) =>
-              msg === lastBotMessage ? { ...msg, isWrite: false } : msg
-            )
-          );
-          setIsTypingDone(true);
-        }
-      };
-
-      type();
-    } else {
-      setTypedText(lastBotMessage?.text || "");
-      setIsTypingDone(true);
-    }
-  }, [lastBotMessage, chatHistory.length]);
+    useEffect(() => {
+      if (lastBotMessage && lastBotMessage.isWrite) {
+        setTypedText(""); // Reset first
+        setIsTypingDone(false);
+    
+        let i = 0;
+        const textToType = lastBotMessage.text || ""; // Ensure a string
+    
+        const type = () => {
+          setTypedText((prev) => {
+            const newText = prev + textToType.charAt(i);
+            i++;
+            if (i < textToType.length) {
+              setTimeout(type, 40);
+            } else {
+              setChatHistory((prevChatHistory) =>
+                prevChatHistory.map((msg) =>
+                  msg === lastBotMessage ? { ...msg, isWrite: false } : msg
+                )
+              );
+              setIsTypingDone(true);
+            }
+            return newText;
+          });
+        };
+    
+        type();
+      } else {
+        setTypedText(lastBotMessage?.text || "");
+        setIsTypingDone(true);
+      }
+    }, [lastBotMessage]);
+    
 
   const chatContainerRef = useRef(null);
 
