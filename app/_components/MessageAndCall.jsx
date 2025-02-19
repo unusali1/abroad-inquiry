@@ -201,7 +201,7 @@ const MessageAndCall = () => {
             const newText = prev + textToType.charAt(i);
             i++;
             if (i < textToType.length) {
-              setTimeout(type, 40);
+              setTimeout(type, 10);
             } else {
               setChatHistory((prevChatHistory) =>
                 prevChatHistory.map((msg) =>
